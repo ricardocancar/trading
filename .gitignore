@@ -1,0 +1,7 @@
+.conda/
+.vscode/
+.ipynb_checkpoints/
+main.py
+test_trading.py
+**/__pycache__/**
+plot_graph.ipynb
