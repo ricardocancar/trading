@@ -1,0 +1,46 @@
+import requests
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+from config import API_URL
+
+def stock_graph():
+    st.header("Datos de Stock")
+    
+    # Entrada de texto para tipo de stop
+    tipo_stop = st.text_input(
+        "Ingresa el tipo de stop a analizar",
+        value="",  # Valor por defecto vacío
+        help="Escribe el tipo de stop que deseas analizar. Deja vacío para por defecto."
+    )
+    
+    # Función para obtener datos de stock con tipo_stop
+    @st.cache_data(ttl=60)
+    def fetch_stock_data(tipo_stop):
+        params = {}
+        if not tipo_stop:
+            return {}
+        response = requests.get(f"{API_URL}/stocks/{tipo_stop}", params=params)
+        response.raise_for_status()
+        return response.json()
+    
+    try:
+        stock_data = fetch_stock_data(tipo_stop)
+        if not stock_data:
+            return
+        df = pd.DataFrame(stock_data)
+        st.dataframe(df)
+
+        # Crear gráfico con Plotly
+        titulo = f"Precios de Stock - {tipo_stop}" if tipo_stop else "Precios de Stock a lo Largo del Tiempo"
+        fig = px.line(df, x="Date", y="Close", title=titulo)
+        st.plotly_chart(fig)
+    except requests.exceptions.ConnectionError:
+        st.error("No se pudo conectar con el servidor FastAPI. Asegúrate de que FastAPI esté corriendo.")
+    except requests.exceptions.Timeout:
+        st.error("La solicitud a FastAPI excedió el tiempo de espera.")
+    except requests.exceptions.HTTPError as err:
+        st.error(f"Error HTTP: {err}")
+    except Exception as e:
+        st.error(f"Ocurrió un error inesperado: {e}")

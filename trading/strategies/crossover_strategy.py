@@ -10,11 +10,11 @@ class CrossoverStrategy(BaseStrategy):
         self.short_period = short_period
         self.long_period = long_period
     
-    def generate_signals(self, Indicator:BaseIndicator, mode:Enum):
+    def generate_signals(self, Indicator:BaseIndicator, mode:Enum, column_indicator:str='Close'):
         """
         Generate signals based on Indicator crossover.
         """
-        indicator = Indicator(self.data['Close'])
+        indicator = Indicator(self.data[column_indicator])
         self.data['short_period'] = indicator.calculate(self.short_period, mode=mode)
         self.data['long_period'] = indicator.calculate(self.long_period, mode=mode)
         
