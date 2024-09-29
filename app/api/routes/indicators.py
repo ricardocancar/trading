@@ -1,11 +1,11 @@
 from fastapi import APIRouter
-from trading.indicators.moving_averages import MovingAverages, MOVING_AVERAGES
+from trading.indicators.moving_averages import MovingAverages
 import yfinance as yf
 
 router = APIRouter()
 
 @router.get("/sma/{symbol}")
-async def get_sma(symbol: str, short_period: int = 20, long_period: int = 50,span_time:str='1y', interval:str='1d') -> list[dict]:
+async def get_sma(symbol: str, short_period: int = 20, long_period: int = 50, span_time:str='1y', interval:str='1d') -> list[dict]:
     """
     Get Simple Moving Average (SMA) for a given stock symbol.
 

@@ -9,11 +9,8 @@ def stock_graph():
     st.header("Datos de Stock")
     
     # Entrada de texto para tipo de stop
-    tipo_stop = st.text_input(
-        "Ingresa el tipo de stop a analizar",
-        value="",  # Valor por defecto vacío
-        help="Escribe el tipo de stop que deseas analizar. Deja vacío para por defecto."
-    )
+    stocks = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Example stock symbols
+    selected_stock = st.selectbox("Select one stock", options=stocks)
     
     # Función para obtener datos de stock con tipo_stop
     @st.cache_data(ttl=60)
@@ -26,14 +23,14 @@ def stock_graph():
         return response.json()
     
     try:
-        stock_data = fetch_stock_data(tipo_stop)
+        stock_data = fetch_stock_data(selected_stock)
         if not stock_data:
             return
         df = pd.DataFrame(stock_data)
         st.dataframe(df)
 
         # Crear gráfico con Plotly
-        titulo = f"Precios de Stock - {tipo_stop}" if tipo_stop else "Precios de Stock a lo Largo del Tiempo"
+        titulo = f"Precios de Stock - {selected_stock}" if selected_stock else "Precios de Stock a lo Largo del Tiempo"
         fig = px.line(df, x="Date", y="Close", title=titulo)
         st.plotly_chart(fig)
     except requests.exceptions.ConnectionError:
@@ -44,3 +41,5 @@ def stock_graph():
         st.error(f"Error HTTP: {err}")
     except Exception as e:
         st.error(f"Ocurrió un error inesperado: {e}")
+
+stock_graph()

@@ -11,13 +11,15 @@ from config import API_URL
 def indicators():
 # Realizar una solicitud a la API de FastAPI para obtener datos de indicadores
     try:
-        tipo_stop = st.text_input("Ingresa el tipo de stop a analizar")
-        indicator = st.text_input("Ingresa el indicador a analizar")
-        if not tipo_stop:
+        indicators = ["sma"]
+        indicator = st.selectbox("Ingresa el indicador a analizar", options=indicators)
+        stocks = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Example stock symbols
+        selected_stock = st.selectbox("Select one stock", options=stocks)
+        if not selected_stock:
             return {}
         if not indicator:
             return {}
-        response = requests.get(f"{API_URL}/indicators/{indicator}/{tipo_stop}")
+        response = requests.get(f"{API_URL}/indicators/{indicator}/{selected_stock}")
         response.raise_for_status()
         indicators = response.json()
         df = pd.DataFrame(indicators)
@@ -30,3 +32,6 @@ def indicators():
 
     except requests.exceptions.RequestException as e:
         st.error(f"Error al obtener indicadores: {e}")
+
+
+indicators()
