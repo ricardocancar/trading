@@ -54,3 +54,24 @@ The following UML diagram illustrates the structure of the Modular Trading Modul
 
 This diagram showcases the relationships between the base classes, indicators, and strategies, providing a clear visual representation of the module's architecture.
 
+
+#### how to use.
+
+# Start Generation Here
+For detailed instructions on how to install Docker Compose, please refer to the official documentation: [Install Docker Compose](https://docs.docker.com/compose/install/).
+
+### Running Docker Compose
+
+To run the application using Docker Compose, follow these steps:
+
+1. Ensure you have Docker and Docker Compose installed on your machine.
+2. Navigate to the directory containing the `docker-compose.yml` file.
+3. Run the following command to start the services:
+
+   ```bash
+   docker compose build
+   docker compose up -d
+   ```
+
+4. Once the services are up and running, you can access the application at `http://localhost:8501`.
+# End Generation Here

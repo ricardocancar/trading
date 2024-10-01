@@ -1,0 +1,25 @@
+services:
+  trading-api:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: trading_app
+    ports:
+      - "8000:8000"
+    networks:
+      - trading-network
+
+  streamlit:
+    build:
+      context: trading_front/
+    container_name: front_trading
+    ports:
+      - "8501:8501"
+    depends_on:
+      - trading-api
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
