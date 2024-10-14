@@ -22,7 +22,10 @@ def performance():
             return {}
         if not indicator: 
             return {}
-        response = requests.get(f"{API_URL}/performance/strategy/{strategy}/{indicator}/{selected_stock}")
+        time_spans = ["1y", "2y", "5y"]  # Define time spans for analysis
+        selected_time_span = st.selectbox("Select a time span for analysis", options=time_spans)
+
+        response = requests.get(f"{API_URL}/performance/strategy/{strategy}/{indicator}/{selected_stock}?span_time={selected_time_span}")
         response.raise_for_status()
         indicators = response.json()
         df = pd.DataFrame(indicators)

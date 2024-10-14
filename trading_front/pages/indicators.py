@@ -15,11 +15,20 @@ def indicators():
         indicator = st.selectbox("Ingresa el indicador a analizar", options=indicators)
         stocks = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Example stock symbols
         selected_stock = st.selectbox("Select one stock", options=stocks)
+        time_spans = ["1y", "2y", "5y"]  # Define time spans for analysis
+        selected_time_span = st.selectbox("Select a time span for analysis", options=time_spans)
+        short_period = [20, 30, 40, 50]
+
+        selected_short_period = st.selectbox("period", options=short_period)
+        selected_long_period = selected_short_period * 3
+
+
+        df = pd.DataFrame(indicators)
         if not selected_stock:
             return {}
         if not indicator:
             return {}
-        response = requests.get(f"{API_URL}/indicators/{indicator}/{selected_stock}")
+        response = requests.get(f"{API_URL}/indicators/{indicator}/{selected_stock}?short_period={selected_short_period}&long_period={selected_long_period}&span_time={selected_time_span}")
         response.raise_for_status()
         indicators = response.json()
         df = pd.DataFrame(indicators)

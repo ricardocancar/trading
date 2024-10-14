@@ -11,14 +11,15 @@ def stock_graph():
     # Entrada de texto para tipo de stop
     stocks = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Example stock symbols
     selected_stock = st.selectbox("Select one stock", options=stocks)
-    
+    time_spans = ["1y", "2y", "5y"]  # Define time spans for analysis
+    selected_time_span = st.selectbox("Select a time span for analysis", options=time_spans)
     # Función para obtener datos de stock con tipo_stop
     @st.cache_data(ttl=60)
     def fetch_stock_data(tipo_stop):
         params = {}
         if not tipo_stop:
             return {}
-        response = requests.get(f"{API_URL}/stocks/{tipo_stop}", params=params)
+        response = requests.get(f"{API_URL}/stocks/{tipo_stop}?span_time={selected_time_span}", params=params)
         response.raise_for_status()
         return response.json()
     
