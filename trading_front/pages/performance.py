@@ -16,6 +16,8 @@ def performance():
         stocks = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Example stock symbols
         selected_stock = st.selectbox("Select one stock", options=stocks)
         strategies = ["crossover", "bolling"]
+        if indicator == "mre":
+            strategies = ["bolling"]
         strategy = st.selectbox("select one strategie", options=strategies)
 
         if not selected_stock:
