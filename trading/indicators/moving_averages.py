@@ -43,13 +43,13 @@ class MovingAverages(BaseIndicator):
         """
         Calculate all moving averages.
         """
-        if mode == MOVING_AVERAGES.SMA:
+        if mode == MOVING_AVERAGES.SMA.value:
             return self.sma(period=period)
-        elif mode == MOVING_AVERAGES.EMA:
+        elif mode == MOVING_AVERAGES.EMA.value:
             return self.ema(period=period)
-        elif mode == MOVING_AVERAGES.WMA:
+        elif mode == MOVING_AVERAGES.WMA.value:
             return self.wma(period=period)
-        elif mode == MOVING_AVERAGES.HMA:
+        elif mode == MOVING_AVERAGES.HMA.value:
             return self.hma(period=period)
         else:
             raise ValueError(f"Invalid mode: {mode}")

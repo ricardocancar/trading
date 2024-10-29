@@ -11,11 +11,11 @@ from config import API_URL
 def performance():
 # Realizar una solicitud a la API de FastAPI para obtener datos de indicadores
     try:
-        indicators = ["sma"]
+        indicators = ["sma", "mre"]
         indicator = st.selectbox("Ingresa el indicador a analizar", options=indicators)
         stocks = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]  # Example stock symbols
         selected_stock = st.selectbox("Select one stock", options=stocks)
-        strategies = ["crossover"]
+        strategies = ["crossover", "bolling"]
         strategy = st.selectbox("select one strategie", options=strategies)
 
         if not selected_stock:
@@ -24,7 +24,8 @@ def performance():
             return {}
         time_spans = ["1y", "2y", "5y"]  # Define time spans for analysis
         selected_time_span = st.selectbox("Select a time span for analysis", options=time_spans)
-
+        if strategy == "bolling":
+            indicator = "mre"
         response = requests.get(f"{API_URL}/performance/strategy/{strategy}/{indicator}/{selected_stock}?span_time={selected_time_span}")
         response.raise_for_status()
         indicators = response.json()
