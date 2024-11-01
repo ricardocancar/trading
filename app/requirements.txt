@@ -4,3 +4,4 @@ yfinance==0.2.*
 fastapi==0.115.*
 pydantic-settings==2.5.*
 uvicorn[standard]
+redis[async]
