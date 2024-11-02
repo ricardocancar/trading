@@ -1,10 +1,13 @@
-from fastapi import APIRouter
+import json
+from fastapi import APIRouter, Request
 import yfinance as yf
+
+from app.core.utils import DateTimeEncoder, conver_date_to_datetime
 
 router = APIRouter()
 
 @router.get("/{simbol}")
-async def get_stock_data(simbol:str, period:str='1y', interval:str='1d')->list[dict]:
+async def get_stock_data(simbol:str,request: Request, period:str='1y', interval:str='1d')->list[dict]:
     """
     Get stock data using Yahoo Finance API.
 
@@ -13,7 +16,12 @@ async def get_stock_data(simbol:str, period:str='1y', interval:str='1d')->list[d
     :param interval: Time interval between data points (default '1d' for daily)
     :return: DataFrame of Pandas with historical stock data
     """
-    stock = yf.Ticker(simbol)
-    data = stock.history(period=period, interval=interval)
-    data_with_index = data.reset_index()
-    return data_with_index.to_dict(orient='records')
+    redis_client = request.app.state.redis
+    key = f"{period}:{interval}:{simbol}"
+    result = await redis_client.get(key)
+    if result is None:
+        stock = yf.Ticker(simbol)
+        data = stock.history(period=period, interval=interval)
+        await redis_client.set(key,json.dumps(data.reset_index().to_dict(orient="records"), cls=DateTimeEncoder))
+        return data.reset_index().to_dict(orient='records')
+    return conver_date_to_datetime( json.loads(result))
