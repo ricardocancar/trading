@@ -49,7 +49,7 @@ def performance():
             labels={'Ingress': 'ingresos en porcentage', 'Value': 'Valor'}
             )
         st.plotly_chart(fig2)
-        response = requests.get(f"{API_URL}/performance/strategy/{strategy}/risk/{selected_stock}")
+        response = requests.get(f"{API_URL}/performance/strategy/{strategy}/risk/{indicator}/{selected_stock}")
         response.raise_for_status()
         risk = response.json()
         data = list(risk.items())
