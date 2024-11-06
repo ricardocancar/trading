@@ -1,4 +1,14 @@
 services:
+  redis:
+    build:
+      context: databases/
+      dockerfile: Dockerfile
+    container_name: redis_db
+    ports:
+      - "6379:6379"
+    networks:
+      - trading-network
+  
   trading-api:
     build:
       context: .
@@ -6,6 +16,8 @@ services:
     container_name: trading_app
     ports:
       - "8000:8000"
+    depends_on:
+      - redis
     networks:
       - trading-network
 
@@ -19,6 +31,8 @@ services:
       - trading-api
     networks:
       - trading-network
+  
+  
 
 networks:
   trading-network:
