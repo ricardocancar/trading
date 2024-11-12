@@ -1,6 +1,5 @@
 from enum import Enum
 from trading.indicators.base_indicator import BaseIndicator
-from trading.indicators.moving_averages import ENUM
 import pandas as pd
 
 class MOMENTUM_INDICATORS(Enum):
@@ -26,17 +25,9 @@ class MomentumIndicators(BaseIndicator):
         rsi = 100 - (100 / (1 + rs))
         return rsi
     
-    def stoch(self, period:int=14) -> pd.Series:
-        """
-        Calculate the Stochastic Oscillator.
-        """
-        low_period = self.data.rolling(window=period).min()
-        high_period = self.data.rolling(window=period).max()
         
     def calculate(self, period:int, mode:Enum) -> pd.Series:
         if mode == MOMENTUM_INDICATORS.RSI:
             return self.rsi(period=period)
-        elif mode == MOMENTUM_INDICATORS.STOCH:
-            return self.stoch(period=period)
         else:
             raise ValueError(f"Invalid mode: {mode}")
