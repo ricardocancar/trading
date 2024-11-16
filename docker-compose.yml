@@ -1,0 +1,39 @@
+services:
+  redis:
+    build:
+      context: databases/
+      dockerfile: Dockerfile
+    container_name: redis_db
+    ports:
+      - "6379:6379"
+    networks:
+      - trading-network
+  
+  trading-api:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: trading_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    networks:
+      - trading-network
+
+  streamlit:
+    build:
+      context: trading_front/
+    container_name: front_trading
+    ports:
+      - "8501:8501"
+    depends_on:
+      - trading-api
+    networks:
+      - trading-network
+  
+  
+
+networks:
+  trading-network:
+    driver: bridge
