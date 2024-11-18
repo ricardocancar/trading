@@ -79,6 +79,7 @@ This diagram showcases the relationships between the base classes, indicators, a
 
 #### how to use.
 
+
 For detailed instructions on how to install Docker Compose, please refer to the official documentation: [Install Docker Compose](https://docs.docker.com/compose/install/).
 
 
@@ -100,3 +101,4 @@ To run the application using Docker Compose, follow these steps:
 
 
 4. Once the services are up and running, you can access the application at `http://localhost:8501`.
+
