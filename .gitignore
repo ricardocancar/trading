@@ -7,3 +7,5 @@ test_trading.py
 plot_graph.ipynb
 **/.pytest_cache/**
 test_graph_show/
+*.egg-info
+build

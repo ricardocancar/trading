@@ -1,1 +1,0 @@
-API_URL = "http://trading-api:8000"
