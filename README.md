@@ -75,8 +75,5 @@ The following UML diagram illustrates the structure of the Modular Trading Modul
 This diagram showcases the relationships between the base classes, indicators, and strategies, providing a clear visual representation of the module's architecture.
 
 
-
-#### Instalation
-
 For us this api you can use the following comman.
    pip install git+https://github.com:ricardocancar/trading.git
