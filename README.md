@@ -3,7 +3,7 @@
 
 This is a personal project aimed to develop a mvp of trading that is designed to be scalable so it will implement good practices in both code design and architecture design. This project implements a sums algorithm that suggests the user when to buy or sell a digital stop based on indicators and strategies.
 
-## Estructura
+## Estructure
 
 
 - `BaseIndicator`: Base Class for all indicators
@@ -73,3 +73,10 @@ The following UML diagram illustrates the structure of the Modular Trading Modul
 
 
 This diagram showcases the relationships between the base classes, indicators, and strategies, providing a clear visual representation of the module's architecture.
+
+
+
+#### Instalation
+
+For us this api you can use the following comman.
+   pip install git+https://github.com:ricardocancar/trading.git

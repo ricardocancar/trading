@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 from trading.indicators.base_indicator import BaseIndicator
 
