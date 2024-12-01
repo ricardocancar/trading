@@ -12,5 +12,3 @@ class BaseIndicator:
             self.data = data.copy()
         else:
             self.data = pd.Series(data)
-    
-    
