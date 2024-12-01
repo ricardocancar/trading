@@ -9,7 +9,7 @@ class BaseStrategy(ABC):
         :param data: pandas DataFrame containing price data.
         """
         self.data = data.copy()
-    
+
     @abstractmethod
     def generate_signals(self):
         """

@@ -2,6 +2,7 @@ import pandas as pd
 
 from trading.indicators.base_indicator import BaseIndicator
 
+
 class MeanReversion(BaseIndicator):
     def __init__(self, data, period=20, num_std_dev=2):
         """
@@ -28,11 +29,10 @@ class MeanReversion(BaseIndicator):
         upper_band = middle_band + (rolling_std * self.num_std_dev)
         lower_band = middle_band - (rolling_std * self.num_std_dev)
 
-        return pd.DataFrame({
-            'Middle Band': middle_band,
-            'Upper Band': upper_band,
-            'Lower Band': lower_band
-        })
-
-
-    
+        return pd.DataFrame(
+            {
+                "Middle Band": middle_band,
+                "Upper Band": upper_band,
+                "Lower Band": lower_band,
+            }
+        )
