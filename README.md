@@ -1,4 +1,4 @@
-# Trading Proyect
+# Trading Project
 
 
 This is a personal project aimed to develop a mvp of trading that is designed to be scalable so it will implement good practices in both code design and architecture design. This project implements a sums algorithm that suggests the user when to buy or sell a digital stop based on indicators and strategies.
