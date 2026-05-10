@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Riesgo — Oro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { gold: { DEFAULT: '#D4A017', light: '#F5C842', dark: '#A07010' } }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-gray-950 text-gray-100 font-sans">
+
+  <header class="border-b border-gray-800 px-6 py-4 flex items-center gap-3">
+    <span class="text-2xl">⚡</span>
+    <h1 class="text-xl font-bold tracking-tight">Calculadora de Riesgo — Oro</h1>
+    <span class="ml-auto text-xs text-gray-500">GC=F · Datos en vivo</span>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-10 space-y-10">
+
+    <!-- Parámetros -->
+    <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-lg">
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-5">Parámetros de operación</h2>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1">Capital (USD)</label>
+          <input id="capital" type="number" value="80000" step="1000"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Lotaje</label>
+          <input id="lotaje" type="number" value="0.02" step="0.01"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Margen mínimo</label>
+          <input id="min_marging" type="number" value="10000" step="500"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Apalancamiento</label>
+          <input id="palanca" type="number" value="500" step="100"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-2">
+          <label class="block text-xs text-gray-400 mb-1">
+            Promedios <span class="text-gray-600">(pips por cada promedio que quieres operar)</span>
+          </label>
+          <input id="promedios" type="number" placeholder="Auto" step="10"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold placeholder-gray-600" />
+        </div>
+
+      </div>
+
+      <button onclick="calcular()"
+        class="mt-6 w-full bg-gold hover:bg-gold-light active:bg-gold-dark text-gray-950 font-bold py-2.5 rounded-xl transition-colors text-sm tracking-wide">
+        Calcular riesgo
+      </button>
+      <p id="error" class="hidden mt-3 text-red-400 text-xs text-center"></p>
+    </section>
+
+    <!-- Resultados -->
+    <section id="resultados" class="hidden space-y-6">
+
+      <!-- Banner precio + volatilidad -->
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl px-6 py-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Precio actual del oro</p>
+          <p id="gold_price" class="text-4xl font-bold text-gold-light"></p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-gray-400 mb-1">Volatilidad diaria (σ)</p>
+          <p id="std_pct" class="text-xl font-semibold text-yellow-400"></p>
+          <p id="std_detalle" class="text-xs text-gray-500 mt-0.5"></p>
+        </div>
+      </div>
+
+      <!-- Variación histórica -->
+      <div>
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-3">Variación diaria del precio (histórica)</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-3">Percentil 5 — caída</p>
+            <div class="flex items-end justify-between gap-4">
+              <div>
+                <p id="baja_pct" class="text-3xl font-bold text-slate-200"></p>
+                <p class="text-xs text-gray-500 mt-1">% variación</p>
+              </div>
+              <div class="text-right">
+                <p id="baja_usd" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">USD</p>
+              </div>
+              <div class="text-right">
+                <p id="baja_pip" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">pips</p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-600 mt-3 border-t border-gray-800 pt-2">El 5% de los días el oro cae al menos esta cantidad</p>
+          </div>
+
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-3">Percentil 95 — subida</p>
+            <div class="flex items-end justify-between gap-4">
+              <div>
+                <p id="sube_pct" class="text-3xl font-bold text-slate-200"></p>
+                <p class="text-xs text-gray-500 mt-1">% variación</p>
+              </div>
+              <div class="text-right">
+                <p id="sube_usd" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">USD</p>
+              </div>
+              <div class="text-right">
+                <p id="sube_pip" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">pips</p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-600 mt-3 border-t border-gray-800 pt-2">El 95% de los días el oro sube menos que esta cantidad</p>
+          </div>
+
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-3">Máxima caída registrada en un día</p>
+            <div class="flex items-end justify-between gap-4">
+              <div>
+                <p id="caida_pct" class="text-3xl font-bold text-slate-200"></p>
+                <p class="text-xs text-gray-500 mt-1">% variación</p>
+              </div>
+              <div class="text-right">
+                <p id="caida_usd" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">USD</p>
+              </div>
+              <div class="text-right">
+                <p id="caida_pip" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">pips</p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-600 mt-3 border-t border-gray-800 pt-2">Mayor movimiento bajista en el historial disponible</p>
+          </div>
+
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-3">Máxima subida registrada en un día</p>
+            <div class="flex items-end justify-between gap-4">
+              <div>
+                <p id="subida_pct" class="text-3xl font-bold text-slate-200"></p>
+                <p class="text-xs text-gray-500 mt-1">% variación</p>
+              </div>
+              <div class="text-right">
+                <p id="subida_usd" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">USD</p>
+              </div>
+              <div class="text-right">
+                <p id="subida_pip" class="text-xl font-semibold text-slate-300"></p>
+                <p class="text-xs text-gray-500 mt-1">pips</p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-600 mt-3 border-t border-gray-800 pt-2">Mayor movimiento alcista en el historial disponible</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Parámetros calculados -->
+      <div>
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-3">Parámetros de operación calculados</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="stat-card bg-gray-900 border border-gray-700">
+            <p class="label">Operaciones</p>
+            <p id="num_ops" class="value text-blue-400"></p>
+            <p class="sub">Permitidas con el capital</p>
+          </div>
+          <div class="stat-card bg-gray-900 border border-gray-700">
+            <p class="label">Promedios</p>
+            <p id="promedios_calc" class="value text-blue-300"></p>
+            <p class="sub">Pips por día</p>
+          </div>
+          <div class="stat-card bg-gray-900 border border-gray-700">
+            <p class="label">Rango de operación</p>
+            <p id="rango_op" class="value text-purple-400"></p>
+            <p class="sub">Pips totales</p>
+          </div>
+          <div class="stat-card bg-gray-900 border border-orange-800/50">
+            <p class="label">Pérdida dolares</p>
+            <p id="perdida_cent" class="value text-orange-400"></p>
+            <p class="sub">Estimada</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Spinner -->
+    <div id="cargando" class="hidden flex justify-center py-10">
+      <svg class="animate-spin h-8 w-8 text-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+    </div>
+
+  </main>
+
+  <style>
+    .stat-card { @apply rounded-xl p-4; }
+    .label     { @apply text-xs text-gray-400 mb-1; }
+    .value     { @apply text-2xl font-bold; }
+    .sub       { @apply text-xs text-gray-500 mt-1; }
+  </style>
+
+  <script>
+    function sgn(n, pos='+', neg='')  { return n >= 0 ? pos : neg; }
+    function fmtPct(n) { return `${n >= 0 ? '+' : ''}${n}%`; }
+    function fmtUsd(n) { return `${n >= 0 ? '+' : '-'}$${Math.abs(n)}`; }
+    function fmtPip(n) { return `${n >= 0 ? '+' : '-'}${Math.abs(n)} pips`; }
+
+    async function calcular() {
+      const errorEl   = document.getElementById('error');
+      const cargando  = document.getElementById('cargando');
+      const resultados = document.getElementById('resultados');
+
+      errorEl.classList.add('hidden');
+      resultados.classList.add('hidden');
+      cargando.classList.remove('hidden');
+
+      const promVal = document.getElementById('promedios').value;
+      const body = {
+        capital:     parseFloat(document.getElementById('capital').value),
+        lotaje:      parseFloat(document.getElementById('lotaje').value),
+        min_marging: parseFloat(document.getElementById('min_marging').value),
+        palanca:     parseInt(document.getElementById('palanca').value),
+        promedios:   promVal !== '' ? parseInt(promVal) : null,
+      };
+
+      try {
+        const res = await fetch('/api/risk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const d = await res.json();
+        const v = d.var;
+
+        document.getElementById('gold_price').textContent    = `$${d.gold_price.toLocaleString('es-ES')}`;
+        document.getElementById('std_pct').textContent       = `±${v.daily_std}%`;
+        document.getElementById('std_detalle').textContent   = `±$${v.daily_std_usd} · ±${v.daily_std_pip} pips`;
+
+        document.getElementById('baja_pct').textContent   = fmtPct(v.downside_5pct);
+        document.getElementById('baja_usd').textContent   = fmtUsd(-v.downside_5pct_usd);
+        document.getElementById('baja_pip').textContent   = fmtPip(-v.downside_5pct_pip);
+
+        document.getElementById('sube_pct').textContent   = fmtPct(v.upside_95pct);
+        document.getElementById('sube_usd').textContent   = fmtUsd(v.upside_95pct_usd);
+        document.getElementById('sube_pip').textContent   = fmtPip(v.upside_95pct_pip);
+
+        document.getElementById('caida_pct').textContent  = fmtPct(v.extreme_fall);
+        document.getElementById('caida_usd').textContent  = fmtUsd(-v.extreme_fall_usd);
+        document.getElementById('caida_pip').textContent  = fmtPip(-v.extreme_fall_pip);
+
+        document.getElementById('subida_pct').textContent = fmtPct(v.extreme_rise);
+        document.getElementById('subida_usd').textContent = fmtUsd(v.extreme_rise_usd);
+        document.getElementById('subida_pip').textContent = fmtPip(v.extreme_rise_pip);
+
+        document.getElementById('num_ops').textContent       = d.operation_number;
+        document.getElementById('promedios_calc').textContent = `${d.averages_pips}`;
+        document.getElementById('rango_op').textContent      = `${d.operation_range}`;
+        document.getElementById('perdida_cent').textContent  = `$${d.cent_loss.toFixed(2)}`;
+
+        resultados.classList.remove('hidden');
+      } catch (e) {
+        errorEl.textContent = `Error: ${e.message}`;
+        errorEl.classList.remove('hidden');
+      } finally {
+        cargando.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
