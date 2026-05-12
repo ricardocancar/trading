@@ -10,7 +10,7 @@ from trading.var.var import (
     calcular_retornos,
     historical_var_percentiles,
     get_operation_num,
-    get_operation_range,
+    get_averages,
     cent_loss,
 )
 
@@ -26,7 +26,7 @@ class RiskRequest(BaseModel):
     lotaje: float = 0.02
     min_marging: float = 10_000
     palanca: int = 500
-    promedios: int | None = None  # pips por día; si no se provee se calcula desde VaR
+    operation_range: int | None = None  # rango total en pips; si no se provee se calcula desde VaR
 
 
 @app.get("/", response_class=FileResponse)
@@ -43,8 +43,6 @@ def calculate_risk(req: RiskRequest):
     returns = calcular_retornos(gold)
     var = historical_var_percentiles(returns)
 
-    averages = req.promedios if req.promedios else int(var["std"] * gold_price / 0.10)
-
     operation_number = get_operation_num(
         capital=req.capital,
         lotaje=req.lotaje,
@@ -52,11 +50,17 @@ def calculate_risk(req: RiskRequest):
         palanca=req.palanca,
         valor_activo=gold_price,
     )
-    operation_range = get_operation_range(operation_number, averages)
-    loss = cent_loss(
+
+    std_pips = int(var["std"] * gold_price / 0.10)
+    operation_range = req.operation_range if req.operation_range else std_pips * max(operation_number, 1)
+    logger.debug(operation_range)
+    recommended_averages = max(1, round(operation_range / max(operation_number, 1)))
+
+    loss, operation_range = cent_loss(
         operation_range=operation_range,
         lotaje=req.lotaje,
         operation_number=max(operation_number, 1),
+        capital=req.capital
     )
 
     def pips(pct: float) -> int:
@@ -69,7 +73,7 @@ def calculate_risk(req: RiskRequest):
         "gold_price": round(gold_price, 2),
         "operation_number": operation_number,
         "operation_range": operation_range,
-        "averages_pips": averages,
+        "recommended_averages": recommended_averages,
         "cent_loss": round(loss, 2),
         "var": {
             "downside_5pct":     round(var["lower_var"] * 100, 3),

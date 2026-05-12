@@ -56,9 +56,9 @@
 
         <div class="col-span-2 sm:col-span-2">
           <label class="block text-xs text-gray-400 mb-1">
-            Promedios <span class="text-gray-600">(pips por cada promedio que quieres operar)</span>
+            Rango de operación <span class="text-gray-600">(pips totales que esperas que se mueva el precio)</span>
           </label>
-          <input id="promedios" type="number" placeholder="Auto" step="10"
+          <input id="operation_range" type="number" placeholder="Auto" step="10"
             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold placeholder-gray-600" />
         </div>
 
@@ -183,7 +183,7 @@
           <div class="stat-card bg-gray-900 border border-gray-700">
             <p class="label">Promedios</p>
             <p id="promedios_calc" class="value text-blue-300"></p>
-            <p class="sub">Pips por cada promedio</p>
+            <p class="sub">Pips por cada promedio recomendado</p>
           </div>
           <div class="stat-card bg-gray-900 border border-gray-700">
             <p class="label">Rango de operación</p>
@@ -193,7 +193,7 @@
           <div class="stat-card bg-gray-900 border border-orange-800/50">
             <p class="label">Pérdida dolares</p>
             <p id="perdida_cent" class="value text-orange-400"></p>
-            <p class="sub">Estimada</p>
+            <p class="sub">Estimada si se te va el rango operando con los promedios recomendados</p>
           </div>
         </div>
       </div>
@@ -232,13 +232,13 @@
       resultados.classList.add('hidden');
       cargando.classList.remove('hidden');
 
-      const promVal = document.getElementById('promedios').value;
+      const rangoVal = document.getElementById('operation_range').value;
       const body = {
-        capital:     parseFloat(document.getElementById('capital').value),
-        lotaje:      parseFloat(document.getElementById('lotaje').value),
-        min_marging: parseFloat(document.getElementById('min_marging').value),
-        palanca:     parseInt(document.getElementById('palanca').value),
-        promedios:   promVal !== '' ? parseInt(promVal) : null,
+        capital:         parseFloat(document.getElementById('capital').value),
+        lotaje:          parseFloat(document.getElementById('lotaje').value),
+        min_marging:     parseFloat(document.getElementById('min_marging').value),
+        palanca:         parseInt(document.getElementById('palanca').value),
+        operation_range: rangoVal !== '' ? parseInt(rangoVal) : null,
       };
 
       try {
@@ -271,9 +271,9 @@
         document.getElementById('subida_usd').textContent = fmtUsd(v.extreme_rise_usd);
         document.getElementById('subida_pip').textContent = fmtPip(v.extreme_rise_pip);
 
-        document.getElementById('num_ops').textContent       = d.operation_number;
-        document.getElementById('promedios_calc').textContent = `${d.averages_pips}`;
-        document.getElementById('rango_op').textContent      = `${d.operation_range}`;
+        document.getElementById('num_ops').textContent        = d.operation_number;
+        document.getElementById('promedios_calc').textContent = `${d.recommended_averages} pips`;
+        document.getElementById('rango_op').textContent       = `${d.operation_range} pips`;
         document.getElementById('perdida_cent').textContent  = `$${d.cent_loss.toFixed(2)}`;
 
         resultados.classList.remove('hidden');

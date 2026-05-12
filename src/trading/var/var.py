@@ -1,13 +1,16 @@
 import numpy as np
 
 
-def cent_loss(operation_range:int=2000, lotaje: float=0.01, operation_number:int=40):
+def cent_loss(operation_range:int=2000, lotaje: float=0.01, operation_number:int=40, capital: float=99999):
     "return the loss in dolas for a cent account"
     average = (operation_range/operation_number)
     loss = 0
-    for i in range(0, operation_number - 1):
+    for i in range(0, operation_number):
         loss += (operation_range - i*average)*lotaje / 10
-    return loss
+        if loss > capital/100:
+            print(capital/100)
+            return capital/100, int(i*average)
+    return loss, operation_range
 
 
 def get_operation_num(capital:float=80000, lotaje:int=0.02, min_marging:int =10000, palanca:int=500, valor_activo:float=4720):
@@ -15,7 +18,8 @@ def get_operation_num(capital:float=80000, lotaje:int=0.02, min_marging:int =100
     
     margin = (valor_activo*100 * lotaje) / palanca
     operations = int(((capital / margin) * 100) / min_marging)
-
+    if operations == 0:
+        operations = 1
     return operations
 
 
@@ -27,6 +31,12 @@ def get_operation_range(operation_number:int = 40, averages:int=50):
         the operation range in number of pips
     """
     return operation_number * averages
+
+
+def get_averages(operation_range: int, operation_number: int) -> int:
+    """return the recomentde average to operate during that range"""
+    return int(operation_range/operation_number)
+
 
 
 def calcular_retornos(datos):
