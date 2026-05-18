@@ -1,79 +1,129 @@
-# Trading Project
+# Gold Risk Calculator
 
+A FastAPI application that calculates risk metrics for gold trading on cent accounts, using historical Value at Risk (VaR) derived from live Yahoo Finance data.
 
-This is a personal project aimed to develop a mvp of trading that is designed to be scalable so it will implement good practices in both code design and architecture design. This project implements a sums algorithm that suggests the user when to buy or sell a digital stop based on indicators and strategies.
+![UML](assets/images/UML_trading.drawio.png)
 
-## Estructure
+---
 
+## Project Structure
 
-- `BaseIndicator`: Base Class for all indicators
- - `MovingAverages`: Implements various moving average calculations including Simple Moving Average (SMA), Exponential Moving Average (EMA), Weighted Moving Average (WMA), and Hull Moving Average (HMA).
- - `MomentumIndicators`: Implements momentum-based indicators such as Relative Strength Index (RSI) and Stochastic Oscillator.
-- `BaseStrategy`: Base Class for all trading strategies
- - `CrossoverStrategy`: Implements a strategy based on the crossover of two indicators (typically moving averages). It generates buy and sell signals when a shorter-term indicator crosses above or below a longer-term indicator.
+```
+trading/
+├── src/
+│   ├── api.py                  # FastAPI app entry point
+│   ├── static/
+│   │   └── index.html          # Frontend UI
+│   ├── source/
+│   │   └── yahoo_finace.py     # Gold price & historical data via yfinance
+│   ├── trading/
+│   │   └── var/
+│   │       └── var.py          # VaR calculations, operation sizing, loss model
+│   ├── db/                     # Database layer (WIP)
+│   └── tests/
+│       ├── test_estrategies.py
+│       ├── test_indicators.py
+│       └── test_performace.py
+├── requirements.txt
+├── pyproject.toml
+├── ruff.toml
+└── render.yaml                 # Render.com deploy config
+```
 
+---
 
+## How It Works
 
+1. Fetches the current gold price and historical OHLCV data from Yahoo Finance (`GC=F`).
+2. Computes daily returns and derives historical VaR percentiles (5th / 95th percentile, worst/best day, daily std).
+3. Given your account parameters, calculates:
+   - Number of simultaneous operations you can open.
+   - Recommended pip range per operation.
+   - Maximum loss in dollars before hitting the capital limit.
 
-## Design Strategy decision
+---
 
+## Running Locally
 
-The code is developed under SOLID principle and modularity
+### 1. Install dependencies
 
+```bash
+pip install -r requirements.txt
+```
 
-### Modular Trading Module
+### 2. Start the FastAPI server
 
+```bash
+cd src
+uvicorn api:app --reload
+```
 
-The Modular Trading Module is a structured approach to developing trading algorithms where indicators and strategies are organized into separate, reusable components. This design promotes flexibility, reusability, and scalability, allowing you to mix and match indicators with different strategies seamlessly.
+The app will be available at `http://127.0.0.1:8000`.
 
+---
 
+## API
 
+### `GET /`
 
-#### Overview of the Modular Trading Module
+Returns the frontend HTML interface.
 
+### `POST /api/risk`
 
-##### Key Components:
+Calculate risk metrics for your trading setup.
 
+**Request body (all fields optional, defaults shown):**
 
-**Indicators Module:**
+```json
+{
+  "capital": 80000,
+  "lotaje": 0.02,
+  "min_marging": 10000,
+  "palanca": 500,
+  "operation_range": null
+}
+```
 
+| Field | Description |
+|---|---|
+| `capital` | Account balance in cents |
+| `lotaje` | Lot size per operation |
+| `min_marging` | Minimum margin to keep free |
+| `palanca` | Leverage (e.g. 500 = 1:500) |
+| `operation_range` | Total pip range override (auto-calculated from VaR if omitted) |
 
-Contains classes or functions for calculating technical indicators (e.g., SMA, EMA, RSI).
-Indicators are standalone and do not depend on specific strategies.
+**Response example:**
 
+```json
+{
+  "gold_price": 3321.50,
+  "operation_number": 12,
+  "operation_range": 4800,
+  "recommended_averages": 400,
+  "cent_loss": 320.45,
+  "var": {
+    "downside_5pct": -1.23,
+    "downside_5pct_usd": 40.85,
+    "downside_5pct_pip": 408,
+    "upside_95pct": 1.10,
+    "daily_std": 0.85,
+    "daily_std_pip": 282,
+    "..."  : "..."
+  }
+}
+```
 
-**Strategies Module:**
+---
 
+## Running Tests
 
-Contains classes for different trading strategies.
-Strategies use indicators from the Indicators Module to generate trading signals.
+```bash
+cd src
+pytest tests/ -v
+```
 
+---
 
+## License
 
-
-
-
-**Benefits:**
-
-
-   Modularity: Clear separation between indicators and strategies.
-   Reusability: Indicators can be used in multiple strategies without modification.
-   Scalability: Easy to add new indicators and strategies.
-
-
-
-
-#### UML Design
-
-
-The following UML diagram illustrates the structure of the Modular Trading Module:
-
-
-![UML Diagram](assets/images/UML_trading.drawio.png)
-
-
-This diagram showcases the relationships between the base classes, indicators, and strategies, providing a clear visual representation of the module's architecture.
-
-
-For us this api you can use the following comman.
-   pip install git+https://github.com:ricardocancar/trading.git
+MIT — see [LICENSE](LICENSE).

@@ -92,5 +92,24 @@ def expected_shortfall(returns, lower_pct: float = 5.0) -> float:
     return float(tail.mean())
 
 
+def upper_expected_shortfall(returns, upper_pct: float = 95.0) -> float:
+    """Average gain on the best days above upper_pct percentile (upper CVaR)."""
+    r = np.asarray(returns)
+    threshold = np.percentile(r, upper_pct)
+    tail = r[r >= threshold]
+    return float(tail.mean())
+
+
+def dollar_loss(operation_range: int = 2000, lotaje: float = 0.01, operation_number: int = 40, capital: float = 1000):
+    """Return max loss in dollars for a standard dollar account (1% capital risk cap)."""
+    average = operation_range / operation_number
+    loss = 0.0
+    for i in range(operation_number):
+        loss += (operation_range - i * average) * lotaje / 10
+        if loss > capital * 0.01:
+            return round(capital * 0.01, 2), int(i * average)
+    return round(loss, 2), operation_range
+
+
 
 
