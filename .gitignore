@@ -10,3 +10,4 @@ test_graph_show/
 *.egg-info
 build
 .coverage
+.parquet
