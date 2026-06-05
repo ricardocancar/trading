@@ -5,11 +5,13 @@ def cent_loss(operation_range:int=2000, lotaje: float=0.01, operation_number:int
     "return the loss in dolas for a cent account"
     average = (operation_range/operation_number)
     loss = 0
+    print(f"average: {average}")
     for i in range(0, operation_number):
-        loss += (operation_range - i*average)*lotaje / 10
-        if loss > capital/100:
-            print(capital/100)
+        loss += (operation_range - i*average)*lotaje
+        if loss > capital/100 and i > 0:
             return capital/100, int(i*average)
+        elif loss > capital/100 and i == 0:
+            return capital, capital / (lotaje * 100)
     return loss, operation_range
 
 
@@ -105,9 +107,11 @@ def dollar_loss(operation_range: int = 2000, lotaje: float = 0.01, operation_num
     average = operation_range / operation_number
     loss = 0.0
     for i in range(operation_number):
-        loss += (operation_range - i * average) * lotaje / 10
-        if loss > capital * 0.01:
-            return round(capital * 0.01, 2), int(i * average)
+        loss += (operation_range - i * average) * lotaje * 100
+        if loss > capital and i > 0:
+            return round(capital , 2), int(i * average)
+        elif loss > capital and i == 0:
+            return round(capital , 2), capital / (lotaje * 100)
     return round(loss, 2), operation_range
 
 
